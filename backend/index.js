@@ -22,7 +22,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,  // disarankan false untuk login session
     cookie: {
-        secure: false,    // aktifkan secure cookie di https
+        secure: 'auto',    // aktifkan secure cookie di https
         httpOnly: true,    // supaya cookie gak bisa diakses JS di client (aman)
         maxAge: 1000 * 60 * 60 * 24, // 1 hari
     }

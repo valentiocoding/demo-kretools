@@ -4,6 +4,7 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import Administrator from './pages/Administrator';
 import Home from './pages/Home';
+import PrivateRoute from './components/PrivateRoute';
 import AdminRoute from './components/AdminRoute';
 
 function App() {
@@ -13,15 +14,20 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route
-          path="/administrator"
-          element={
-            <AdminRoute>
-              <Administrator />
-            </AdminRoute>
-          }
-        />
+
+        {/* Route untuk user yang sudah login */}
+        <Route path="/profile" element={
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        } />
+
+        {/* Route khusus admin */}
+        <Route path="/administrator" element={
+          <AdminRoute>
+            <Administrator />
+          </AdminRoute>
+        } />
       </Routes>
     </Router>
   );

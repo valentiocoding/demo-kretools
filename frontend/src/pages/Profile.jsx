@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function Profile() {
   const [user, setUser] = useState(null);
@@ -7,30 +8,26 @@ export default function Profile() {
   const navigate = useNavigate();
 
   async function handleLogout() {
-    const res = await fetch('http://localhost:5000/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-    });
-
-    if (res.ok) {
-      localStorage.removeItem('isLoggedIn');  // hapus flag login lokal
-      localStorage.removeItem('user');  // hapus flag login lokal
-      navigate('/login'); // redirect ke login
-    } else {
+    try {
+      const res = await axios.post('http://localhost:5000/api/auth/logout', {}, { withCredentials: true });
+      if (res.status === 200) {
+        sessionStorage.removeItem('isLoggedIn');
+        sessionStorage.removeItem('user');
+        navigate('/login');
+      }
+    } catch (err) {
       alert('Logout gagal');
     }
   }
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/profile', {
-      credentials: 'include',
-    })
+    axios.get('http://localhost:5000/api/profile', { withCredentials: true })
       .then(res => {
-        if (!res.ok) throw new Error('Anda harus login dulu');
-        return res.json();
+        setUser(res.data.user);
       })
-      .then(data => setUser(data.user))
-      .catch(err => setError(err.message));
+      .catch(err => {
+        setError('Anda harus login dulu');
+      });
   }, []);
 
   if (error) return <p>{error}</p>;

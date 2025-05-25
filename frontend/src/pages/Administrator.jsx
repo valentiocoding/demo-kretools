@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function Administrator() {
   const [message, setMessage] = useState('');
@@ -7,37 +8,35 @@ export default function Administrator() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/admin', {
-      credentials: 'include',
-    })
+    axios.get('http://localhost:5000/api/admin', { withCredentials: true })
       .then(res => {
-        if (!res.ok) throw new Error('Anda bukan admin atau belum login');
-        return res.json();
+        // Pastikan res.data.message ada dan langsung set ke state
+        if(res.data && res.data.message){
+          setMessage(res.data.message);
+        } else {
+          setError('Response API tidak mengandung pesan');
+        }
       })
-      .then(data => setMessage(data.message))
       .catch(err => {
-        setError(err.message);
-        setTimeout(() => navigate('/'), 2000); // Redirect ke home jika gagal
+        setError('Anda bukan admin atau belum login');
+        setTimeout(() => navigate('/login'), 2000);
       });
   }, [navigate]);
 
-  // Fungsi logout
   async function handleLogout() {
-    const res = await fetch('http://localhost:5000/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-    });
-
-    if (res.ok) {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('user');
-      navigate('/login');
-    } else {
+    try {
+      const res = await axios.post('http://localhost:5000/api/auth/logout', {}, { withCredentials: true });
+      if (res.status === 200) {
+        sessionStorage.removeItem('isLoggedIn');
+        sessionStorage.removeItem('user');
+        navigate('/login');
+      }
+    } catch (error) {
       alert('Logout gagal');
     }
   }
 
-  if (error) return <p>{error}</p>;
+  if (error) return <p style={{color:'red'}}>{error}</p>;
   if (!message) return <p>Loading...</p>;
 
   return (

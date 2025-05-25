@@ -1,16 +1,12 @@
 import { Navigate } from 'react-router-dom';
 
 export default function AdminRoute({ children }) {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  const user = JSON.parse(localStorage.getItem('user'));
+  const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+  const user = JSON.parse(sessionStorage.getItem('user') || '{}');
 
-  if (!isLoggedIn || !user) {
-    return <Navigate to="/login" />;
+  if (!isLoggedIn || user.role !== 'admin') {
+    return <Navigate to="/login" replace />;
   }
 
-  if (user.role !== 'admin') {
-    return <Navigate to="/" />; // redirect ke home jika bukan admin
-  }
-
-  return children;
+  return children;  // render komponen anak langsung
 }
